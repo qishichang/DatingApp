@@ -15,6 +15,7 @@ import { AlertifyService } from './_services/alertify.service';
 import { MemberListComponent } from './member-list/member-list.component';
 import { ListsComponent } from './lists/lists.component';
 import { MessagesComponent } from './messages/messages.component';
+import { UserService } from './_services/user.service';
 
 @NgModule({
    declarations: [
@@ -35,6 +36,7 @@ import { MessagesComponent } from './messages/messages.component';
    ],
    providers: [
       AuthService,
+      UserService,
       AlertifyService,
       ErrorInterceptorProvider
    ],
