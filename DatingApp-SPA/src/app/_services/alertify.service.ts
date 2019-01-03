@@ -9,10 +9,11 @@ export class AlertifyService {
   constructor() { }
 
   confirm(message: string, okCallback: () => any) {
-    alertify.confirm(message, function (e) {
+    alertify.confirm('Dating App', message, function (e) {
       if (e) {
         okCallback();
       } else {}
+    }, function (e) {
     });
   }
 
