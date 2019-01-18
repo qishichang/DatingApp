@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -27,9 +28,9 @@ namespace DatingApp.API.Controllers
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
 
-        public AuthController(IConfiguration config, 
-            IMapper mapper, 
-            UserManager<User> userManager, 
+        public AuthController(IConfiguration config,
+            IMapper mapper,
+            UserManager<User> userManager,
             SignInManager<User> signInManager)
         {
             _config = config;
@@ -49,7 +50,7 @@ namespace DatingApp.API.Controllers
 
             if (result.Succeeded)
             {
-                return CreatedAtRoute("GetUser", new { controller = "Users", id = userToCreate.Id}, userToReturn);
+                return CreatedAtRoute("GetUser", new { controller = "Users", id = userToCreate.Id }, userToReturn);
             }
 
             return BadRequest(result.Errors);
@@ -70,7 +71,8 @@ namespace DatingApp.API.Controllers
                 var userToReturn = _mapper.Map<UserForListDto>(appUser);
 
                 return Ok(
-                    new {
+                    new
+                    {
                         token = GenerateJwtToken(appUser),
                         user = userToReturn
                     }
@@ -80,12 +82,19 @@ namespace DatingApp.API.Controllers
             return Unauthorized();
         }
 
-        private string GenerateJwtToken(User user)
+        private async Task<string> GenerateJwtToken(User user)
         {
-            var claims = new[] {
+            var claims = new List<Claim> {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.UserName)
             };
+
+            var roles = await _userManager.GetRolesAsync(user);
+
+            foreach (var role in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config.GetSection("AppSettings:Token").Value));
 
